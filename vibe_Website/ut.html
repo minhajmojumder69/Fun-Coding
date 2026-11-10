@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday — Interactive Heart & Blooming Tree Wish</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600;1,700&family=Dancing+Script:wght@500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #f8f1e7;
+      --bg-crimson: #8c0d37;
+      --rose-deep: #9e1440;
+      --rose-bright: #e03168;
+      --gold-soft: #e6c699;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background-color: #161215;
+    }
+
+    .font-serif-display {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .font-editorial {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .font-script {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    /* Subtle floating animation for the 3D heart */
+    @keyframes heartFloat {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        transform: translate(-50%, -54%) scale(1.045);
+      }
+    }
+
+    @keyframes pulseAura {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.65;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.14);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes shimmerSweep {
+      0% {
+        transform: translateX(-120%) skewX(-20deg);
+      }
+      100% {
+        transform: translateX(220%) skewX(-20deg);
+      }
+    }
+
+    @keyframes floatSlow {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .animate-heart-float {
+      animation: heartFloat 3.2s ease-in-out infinite;
+    }
+
+    .animate-aura {
+      animation: pulseAura 3.2s ease-in-out infinite;
+    }
+
+    .animate-float-slow {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    .btn-open-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      animation: shimmerSweep 3.2s infinite;
+    }
+
+    /* Smooth stage transitions */
+    .stage-layer {
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1), transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Glowing orb transition */
+    #sun-flash {
+      pointer-events: none;
+      background: radial-gradient(circle, #ffffff 0%, #fff4d6 28%, #f9c6cf 58%, rgba(248, 241, 231, 0) 75%);
+      transition: transform 1.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.1s ease-in-out;
+    }
+  </style>
+</head>
+<body class="relative w-full h-full flex flex-col justify-between overflow-hidden select-none">
+
+  <!-- TOP BROWSER-STYLE HEADER BAR (Echoes the aesthetic in the video + houses controls) -->
+  <header class="relative z-40 flex items-center justify-between px-3 sm:px-5 py-2.5 bg-[#1a1318]/95 border-b border-white/10 text-white/80 text-xs sm:text-sm backdrop-blur-md">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div class="flex items-center gap-1.5 shrink-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] inline-block"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] inline-block"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f] inline-block"></span>
+      </div>
+      <div class="flex items-center gap-1.5 truncate font-medium text-rose-100/90">
+        <span class="text-rose-400">♥</span>
+        <span id="header-title-text" class="truncate">Happy Birthday — draw the bow, hit the heart</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <button id="btn-customize" type="button" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-rose-100 text-xs font-medium transition flex items-center gap-1" title="Personalize message">
+        <svg class="w-3.5 h-3.5 text-rose-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        <span class="hidden sm:inline">Customize</span>
+      </button>
+
+      <button id="btn-replay" type="button" class="hidden px-2.5 py-1 rounded-full bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/30 text-rose-100 text-xs font-medium transition items-center gap-1" title="Replay from start">
+        <svg class="w-3.5 h-3.5 text-rose-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span>Replay</span>
+      </button>
+
+      <button id="btn-audio" type="button" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-rose-100 text-xs font-medium transition flex items-center gap-1" title="Toggle birthday melody">
+        <span id="audio-icon">🔊</span>
+        <span id="audio-label" class="hidden md:inline">Music On</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN INTERACTIVE STAGE VIEWPORT -->
+  <main id="stage-container" class="relative flex-1 w-full overflow-hidden transition-colors duration-1000" style="background: radial-gradient(circle at 50% 42%, #fffcf8 0%, #f7ede0 58%, #ead8c3 100%);">
+
+    <!-- Ambient Floating Bokeh / Petals Canvas (Always active in background) -->
+    <canvas id="ambient-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- ===================================================== -->
+    <!-- PAGE 0: FIRST PAGE ("OPEN" BUTTON INVITATION SCREEN)  -->
+    <!-- ===================================================== -->
+    <section id="scene-open" class="stage-layer absolute inset-0 z-30 flex flex-col items-center justify-center px-4 text-center">
+      <!-- Warm glowing backdrop aura -->
+      <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-rose-300/30 blur-3xl absolute pointer-events-none"></div>
+
+      <!-- Envelope / Keepsake Card -->
+      <div class="relative z-10 max-w-md w-full bg-white/75 backdrop-blur-xl border border-rose-200/80 rounded-3xl p-7 sm:p-10 shadow-[0_25px_70px_-15px_rgba(158,20,64,0.22)] animate-float-slow">
+        <!-- Wax Seal / Floating Mini Heart Badge -->
+        <div class="mx-auto mb-5 w-16 h-16 rounded-full bg-gradient-to-br from-rose-400 via-rose-600 to-rose-800 p-0.5 shadow-lg shadow-rose-500/30 flex items-center justify-center">
+          <div class="w-full h-full rounded-full bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center border border-rose-200/40">
+            <svg class="w-8 h-8 text-rose-50 drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+        </div>
+
+        <p id="open-card-subtitle" class="font-script text-2xl sm:text-3xl text-rose-700/85 mb-1">
+          a little something, for you
+        </p>
+
+        <h1 id="open-card-title" class="font-serif-display text-3xl sm:text-4xl font-bold text-[#3b1d28] tracking-tight mb-3">
+          A Birthday Surprise
+        </h1>
+
+        <p class="text-sm sm:text-base text-[#6e4957] leading-relaxed mb-7 max-w-xs mx-auto">
+          Tap the button below to open your birthday wish, draw Cupid’s bow, and watch the celebration bloom.
+        </p>
+
+        <!-- Primary "Open" Button -->
+        <button id="btn-open-surprise" type="button" class="btn-open-shimmer relative overflow-hidden group inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-gradient-to-r from-[#b5174b] via-[#d62860] to-[#b5174b] text-white font-semibold text-base sm:text-lg tracking-wide shadow-[0_12px_30px_-6px_rgba(190,24,77,0.55)] hover:shadow-[0_18px_38px_-6px_rgba(190,24,77,0.75)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer">
+          <span>Open</span>
+          <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </button>
+
+        <!-- Mode Selector Pill (Auto-Play like video vs Manual Drag/Click Bow) -->
+        <div class="mt-6 pt-4 border-t border-rose-200/60 flex items-center justify-center gap-3 text-xs text-[#7d5866]">
+          <span>Bow Mode:</span>
+          <button id="mode-auto-btn" type="button" class="px-3 py-1 rounded-full bg-rose-600 text-white font-medium transition">
+            Auto-Shoot (Like Video)
+          </button>
+          <button id="mode-manual-btn" type="button" class="px-3 py-1 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-900 font-medium transition">
+            Click / Pull to Shoot
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SCENE 1: AIM FOR THE HEART (3D HEART + RECURVE BOW)   -->
+    <!-- ===================================================== -->
+    <section id="scene-archery" class="stage-layer absolute inset-0 z-20 opacity-0 pointer-events-none">
+      <!-- Top cursive whisper text -->
+      <div class="absolute top-[11%] left-1/2 -translate-x-1/2 text-center w-full px-4">
+        <p id="archery-whisper" class="font-script text-xl sm:text-2xl md:text-3xl text-[#8d6b61] tracking-wide opacity-0 transition-opacity duration-700">
+          a little something, for you
+        </p>
+      </div>
+
+      <!-- Soft pink radial aura behind the 3D heart -->
+      <div id="heart-aura" class="absolute top-[37%] left-1/2 w-56 h-56 sm:w-72 sm:h-72 rounded-full pointer-events-none animate-aura"
+           style="background: radial-gradient(circle, rgba(235, 94, 139, 0.52) 0%, rgba(235, 94, 139, 0.22) 45%, rgba(235, 94, 139, 0) 72%);">
+      </div>
+
+      <!-- Center 3D Glossy Heart Target -->
+      <div id="target-heart-wrapper" class="absolute top-[37%] left-1/2 w-28 h-28 sm:w-36 sm:h-36 animate-heart-float cursor-pointer" title="Click to shoot arrow!">
+        <svg viewBox="0 0 200 200" class="w-full h-full overflow-visible drop-shadow-[0_18px_28px_rgba(186,28,78,0.38)]">
+          <defs>
+            <!-- 3D Glossy Heart Base Gradient -->
+            <radialGradient id="heart3dGrad" cx="35%" cy="30%" r="70%" fx="32%" fy="25%">
+              <stop offset="0%" stop-color="#ffb8d0" />
+              <stop offset="22%" stop-color="#f26493" />
+              <stop offset="58%" stop-color="#d42662" />
+              <stop offset="88%" stop-color="#9e0e40" />
+              <stop offset="100%" stop-color="#78072d" />
+            </radialGradient>
+            <!-- Specular top-left gloss highlight -->
+            <linearGradient id="heartSpecular" x1="0%" y1="0%" x2="60%" y2="80%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.75)" />
+              <stop offset="45%" stop-color="rgba(255,255,255,0.12)" />
+              <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+
+          <!-- Main Heart Shape -->
+          <path id="target-heart-path"
+                d="M100,172 C100,172 22,122 22,68 C22,38 46,20 72,20 C88,20 96,30 100,38 C104,30 112,20 128,20 C154,20 178,38 178,68 C178,122 100,172 100,172 Z"
+                fill="url(#heart3dGrad)" />
+
+          <!-- Specular 3D Shine on Left Lobe -->
+          <ellipse cx="64" cy="54" rx="22" ry="13" transform="rotate(-28 64 54)" fill="url(#heartSpecular)" />
+          <ellipse cx="134" cy="48" rx="12" ry="7" transform="rotate(20 134 48)" fill="rgba(255,255,255,0.28)" />
+        </svg>
+      </div>
+
+      <!-- Mini-Hearts Burst Container (when arrow hits the heart) -->
+      <canvas id="burst-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
+
+      <!-- Recurve Bow & Heart-Tipped Arrow SVG -->
+      <div id="bow-wrapper" class="absolute left-[26%] sm:left-[30%] bottom-[16%] w-40 h-40 sm:w-48 sm:h-48 -translate-x-1/2 translate-y-1/2 origin-center cursor-pointer"
+           style="transform: translate(-50%, 50%) rotate(-28deg);">
+        <svg id="bow-svg" viewBox="-100 -100 200 200" class="w-full h-full overflow-visible">
+          <!-- Bow String -->
+          <path id="bow-string" d="M -68,26 Q 0,26 68,26" fill="none" stroke="#9c7a69" stroke-width="1.8" stroke-linecap="round" />
+
+          <!-- Recurve Bow Limbs (Wood & Rose-Gold grip) -->
+          <path id="bow-limb"
+                d="M -72,30 C -58,10 -36,-24 0,-26 C 36,-24 58,10 72,30"
+                fill="none" stroke="#5e2529" stroke-width="5.5" stroke-linecap="round" />
+          <!-- Center riser highlight -->
+          <path d="M -14,-24 Q 0,-27 14,-24" fill="none" stroke="#d49b7e" stroke-width="6.5" stroke-linecap="round" />
+
+          <!-- Cupid's Arrow Group (moves during draw and flight) -->
+          <g id="arrow-group" transform="translate(0, 0)">
+            <!-- Arrow Shaft -->
+            <line x1="0" y1="26" x2="0" y2="-52" stroke="#4a2024" stroke-width="2.8" stroke-linecap="round" />
+            <!-- Fletching Feathers (Red/Rose) -->
+            <path d="M 0,24 L -9,34 L -2,28 L 0,20 Z" fill="#c9184a" />
+            <path d="M 0,24 L 9,34 L 2,28 L 0,20 Z" fill="#ff4d79" />
+            <path d="M 0,17 L -8,26 L 0,21 Z" fill="#a4133c" />
+            <path d="M 0,17 L 8,26 L 0,21 Z" fill="#e01e5a" />
+            <!-- Heart-Shaped Arrowhead -->
+            <path d="M 0,-64 C 0,-64 -11,-54 -11,-46 C -11,-41 -6,-38 -2,-40 C 0,-41 0,-43 0,-43 C 0,-43 0,-41 2,-40 C 6,-38 11,-41 11,-46 C 11,-54 0,-64 0,-64 Z"
+                  fill="#d91e5b" stroke="#7a0b2e" stroke-width="1" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Subtle Interactive Prompt Pill -->
+      <div id="archery-hint" class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-950/10 border border-amber-900/15 text-[#6e4f47] text-xs sm:text-sm font-medium backdrop-blur-sm transition-opacity duration-500">
+        Click anywhere or wait a moment to shoot Cupid’s arrow
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SCENE 2: DEEP CRIMSON WISH REVEAL ("HAPPY BIRTHDAY")  -->
+    <!-- ===================================================== -->
+    <section id="scene-crimson" class="stage-layer absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center opacity-0 pointer-events-none"
+             style="background: radial-gradient(circle at 50% 48%, #c91854 0%, #9b0b3e 46%, #5e0424 100%);">
+
+      <!-- Ambient center glow -->
+      <div class="w-80 h-80 sm:w-[28rem] sm:h-[28rem] rounded-full bg-rose-400/20 blur-3xl absolute pointer-events-none"></div>
+
+      <!-- Floating sparkles inside crimson scene -->
+      <div class="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+        <!-- Top script: "make a wish..." -->
+        <p id="crimson-pre" class="font-script text-2xl sm:text-3xl md:text-4xl text-rose-200/90 mb-3 opacity-0 translate-y-4 transition-all duration-700">
+          make a wish...
+        </p>
+
+        <!-- Main Title: "Happy Birthday" -->
+        <h2 id="crimson-happy" class="font-serif-display text-6xl sm:text-7xl md:text-8xl font-bold text-[#fff8f6] tracking-tight leading-[1.04] drop-shadow-[0_8px_28px_rgba(0,0,0,0.35)] opacity-0 scale-90 transition-all duration-700">
+          Happy
+        </h2>
+        <h2 id="crimson-birthday" class="font-serif-display text-6xl sm:text-7xl md:text-8xl font-bold text-[#fff8f6] tracking-tight leading-[1.06] drop-shadow-[0_8px_28px_rgba(0,0,0,0.35)] opacity-0 scale-90 transition-all duration-700">
+          Birthday
+        </h2>
+
+        <!-- Recipient Name Tag (if customized) -->
+        <p id="crimson-recipient" class="font-editorial italic text-2xl sm:text-3xl text-amber-200/95 mt-2 hidden"></p>
+
+        <!-- Decorative golden-rose divider line -->
+        <div id="crimson-divider" class="my-6 flex items-center justify-center gap-3 w-52 sm:w-72 opacity-0 transition-all duration-700">
+          <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-rose-200/70 to-rose-200/90"></span>
+          <span class="text-rose-200 text-xs">✦</span>
+          <span class="h-[1px] flex-1 bg-gradient-to-l from-transparent via-rose-200/70 to-rose-200/90"></span>
+        </div>
+
+        <!-- Bottom script: "to someone worth celebrating" -->
+        <p id="crimson-sub" class="font-script text-2xl sm:text-3xl md:text-4xl text-rose-200/90 opacity-0 translate-y-3 transition-all duration-700">
+          to someone worth celebrating
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- RADIANT GOLDEN SUNBURST FLASH OVERLAY (TRANSITION)    -->
+    <!-- ===================================================== -->
+    <div id="sun-flash" class="absolute inset-0 z-30 opacity-0 scale-50 flex items-center justify-center"></div>
+
+    <!-- ===================================================== -->
+    <!-- SCENE 3: BLOOMING HEART TREE & POETIC FINALE          -->
+    <!-- ===================================================== -->
+    <section id="scene-tree" class="stage-layer absolute inset-0 z-20 opacity-0 pointer-events-none">
+      <!-- High-DPI Canvas for Growing Trunk, Branches & 380+ Blooming 3D Hearts -->
+      <canvas id="tree-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+
+      <!-- Bottom-Left Poetic Birthday Typography (matches the video layout) -->
+      <div id="tree-text-block" class="absolute bottom-[6%] sm:bottom-[9%] z-20 w-fit max-w-[88vw] pointer-events-auto">
+        <p id="tree-line-1" class="font-script text-xl sm:text-2xl md:text-3xl text-[#7a5248] mb-0.5 opacity-0 translate-y-3 transition-all duration-700">
+          and... make it count
+        </p>
+
+        <div id="tree-main-heading" class="opacity-0 translate-y-4 transition-all duration-700 delay-150">
+          <div class="font-serif-display italic font-bold text-4xl sm:text-5xl md:text-6xl text-[#a61b46] leading-[0.95] drop-shadow-sm">
+            Happy
+          </div>
+          <div class="font-serif-display italic font-bold text-4xl sm:text-5xl md:text-6xl text-[#a61b46] leading-[1.05] drop-shadow-sm">
+            Birthday
+          </div>
+          <div id="tree-recipient-name" class="font-editorial italic font-semibold text-xl sm:text-2xl text-[#823048] mt-0.5 hidden"></div>
+        </div>
+
+        <div id="tree-line-divider" class="w-40 sm:w-52 h-[1.5px] bg-gradient-to-r from-[#b85d6f]/70 via-[#b85d6f]/40 to-transparent my-2.5 opacity-0 transition-all duration-700 delay-300"></div>
+
+        <p id="tree-line-2" class="font-editorial italic text-sm sm:text-base md:text-lg text-[#7d5a50] tracking-wide opacity-0 translate-y-2 transition-all duration-700 delay-500">
+          here's to a year that blooms
+        </p>
+
+        <!-- Action buttons on the final screen -->
+        <div id="tree-actions" class="mt-4 flex flex-wrap items-center gap-2 opacity-0 transition-opacity duration-700 delay-700">
+          <button id="btn-bloom-more" type="button" class="px-3.5 py-1.5 rounded-full bg-[#a61b46] hover:bg-[#8e143a] text-white text-xs font-medium shadow-md shadow-rose-900/20 transition flex items-center gap-1.5 cursor-pointer">
+            <span>🌸</span>
+            <span>Shower Petals</span>
+          </button>
+          <button id="btn-replay-bottom" type="button" class="px-3.5 py-1.5 rounded-full bg-white/80 hover:bg-white text-[#6e3b49] border border-rose-300/70 text-xs font-medium shadow-sm transition cursor-pointer">
+            Replay Wish
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM CAPTION BANNER (Matches the video's "Aim for the heart" / "Happy Birthday!" bar) -->
+  <footer id="bottom-caption-bar" class="relative z-40 py-3 sm:py-4 px-4 bg-[#140e12] border-t border-white/10 text-center transition-colors duration-700">
+    <p id="stage-caption" class="font-serif-display text-xl sm:text-2xl md:text-3xl text-[#f5ebe1] tracking-wide">
+      Click “Open” to begin
+    </p>
+  </footer>
+
+  <!-- ===================================================== -->
+  <!-- CUSTOMIZE WISH MODAL (Personalize Recipient & Quotes) -->
+  <!-- ===================================================== -->
+  <div id="customize-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-[#fffcf9] border border-rose-200 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl text-[#3b1d28]">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-serif-display text-2xl font-bold">Personalize Birthday Wish</h3>
+        <button id="btn-close-modal" type="button" class="w-8 h-8 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-800 flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+
+      <div class="space-y-4 text-sm">
+        <div>
+          <label for="input-recipient" class="block font-medium text-[#5e3745] mb-1">Recipient Name (optional)</label>
+          <input id="input-recipient" type="text" placeholder="e.g., Sarah, Mom, Alex..." maxlength="32"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-400 text-[#3b1d28]" />
+        </div>
+
+        <div>
+          <label for="input-subwish" class="block font-medium text-[#5e3745] mb-1">Crimson Screen Subtitle</label>
+          <input id="input-subwish" type="text" value="to someone worth celebrating" maxlength="60"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-400 text-[#3b1d28]" />
+        </div>
+
+        <div>
+          <label for="input-tree-footer" class="block font-medium text-[#5e3745] mb-1">Blooming Tree Closing Line</label>
+          <input id="input-tree-footer" type="text" value="here's to a year that blooms" maxlength="60"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-400 text-[#3b1d28]" />
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-end gap-2.5">
+        <button id="btn-cancel-modal" type="button" class="px-4 py-2 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-900 text-xs sm:text-sm font-medium transition">
+          Cancel
+        </button>
+        <button id="btn-save-modal" type="button" class="px-5 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-md transition">
+          Save & Restart Wish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================== -->
+  <!-- APPLICATION JAVASCRIPT (ANIMATION ENGINE & AUDIO)     -->
+  <!-- ===================================================== -->
+  <script>
+    (function () {
+      // --- STATE ---
+      let currentStage = 'open'; // 'open' | 'archery' | 'crimson' | 'tree'
+      let autoShootMode = true;
+      let isAudioEnabled = true;
+      let audioCtx = null;
+      let melodyInterval = null;
+      let scheduledTimeouts = [];
+      let arrowFired = false;
+
+      // Custom text state
+      let recipientName = '';
+      let crimsonSubtitle = 'to someone worth celebrating';
+      let treeFooterText = "here's to a year that blooms";
+
+      // DOM Elements
+      const stageContainer = document.getElementById('stage-container');
+      const sceneOpen = document.getElementById('scene-open');
+      const sceneArchery = document.getElementById('scene-archery');
+      const sceneCrimson = document.getElementById('scene-crimson');
+      const sceneTree = document.getElementById('scene-tree');
+      const sunFlash = document.getElementById('sun-flash');
+      const stageCaption = document.getElementById('stage-caption');
+
+      const btnOpenSurprise = document.getElementById('btn-open-surprise');
+      const btnReplay = document.getElementById('btn-replay');
+      const btnReplayBottom = document.getElementById('btn-replay-bottom');
+      const btnBloomMore = document.getElementById('btn-bloom-more');
+      const btnAudio = document.getElementById('btn-audio');
+      const audioIcon = document.getElementById('audio-icon');
+      const audioLabel = document.getElementById('audio-label');
+
+      const modeAutoBtn = document.getElementById('mode-auto-btn');
+      const modeManualBtn = document.getElementById('mode-manual-btn');
+
+      // Archery DOM
+      const archeryWhisper = document.getElementById('archery-whisper');
+      const targetHeartWrapper = document.getElementById('target-heart-wrapper');
+      const heartAura = document.getElementById('heart-aura');
+      const bowWrapper = document.getElementById('bow-wrapper');
+      const bowString = document.getElementById('bow-string');
+      const bowLimb = document.getElementById('bow-limb');
+      const arrowGroup = document.getElementById('arrow-group');
+      const archeryHint = document.getElementById('archery-hint');
+
+      // Crimson DOM
+      const crimsonPre = document.getElementById('crimson-pre');
+      const crimsonHappy = document.getElementById('crimson-happy');
+      const crimsonBirthday = document.getElementById('crimson-birthday');
+      const crimsonRecipient = document.getElementById('crimson-recipient');
+      const crimsonDivider = document.getElementById('crimson-divider');
+      const crimsonSub = document.getElementById('crimson-sub');
+
+      // Tree DOM
+      const treeLine1 = document.getElementById('tree-line-1');
+      const treeMainHeading = document.getElementById('tree-main-heading');
+      const treeRecipientName = document.getElementById('tree-recipient-name');
+      const treeLineDivider = document.getElementById('tree-line-divider');
+      const treeLine2 = document.getElementById('tree-line-2');
+      const treeActions = document.getElementById('tree-actions');
+
+      // Modal DOM
+      const btnCustomize = document.getElementById('btn-customize');
+      const customizeModal = document.getElementById('customize-modal');
+      const btnCloseModal = document.getElementById('btn-close-modal');
+      const btnCancelModal = document.getElementById('btn-cancel-modal');
+      const btnSaveModal = document.getElementById('btn-save-modal');
+      const inputRecipient = document.getElementById('input-recipient');
+      const inputSubwish = document.getElementById('input-subwish');
+      const inputTreeFooter = document.getElementById('input-tree-footer');
+
+      // Canvases
+      const ambientCanvas = document.getElementById('ambient-canvas');
+      const ambientCtx = ambientCanvas.getContext('2d');
+      const burstCanvas = document.getElementById('burst-canvas');
+      const burstCtx = burstCanvas.getContext('2d');
+      const treeCanvas = document.getElementById('tree-canvas');
+      const treeCtx = treeCanvas.getContext('2d');
+
+      // --- HELPER FOR TIMERS ---
+      function schedule(fn, delay) {
+        const id = setTimeout(fn, delay);
+        scheduledTimeouts.push(id);
+        return id;
+      }
+
+      function clearAllScheduled() {
+        while (scheduledTimeouts.length) {
+          clearTimeout(scheduledTimeouts.pop());
+        }
+      }
+
+      // --- SYNTHESIZED ACOUSTIC / MUSIC-BOX WEB AUDIO ENGINE ---
+      function initAudio() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
+
+      function playPluck(freq, duration, delaySec, volume = 0.11, type = 'triangle') {
+        if (!isAudioEnabled || !audioCtx) return;
+        const now = audioCtx.currentTime + (delaySec || 0);
+        const osc = audioCtx.createOscillator();
+        const overtone = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        overtone.type = 'sine';
+        overtone.frequency.setValueAtTime(freq * 2, now);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + duration);
+
+        osc.connect(gain);
+        overtone.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        overtone.start(now);
+        osc.stop(now + duration + 0.05);
+        overtone.stop(now + duration + 0.05);
+      }
+
+      function playBowTwangSound() {
+        if (!isAudioEnabled || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        // Elastic string twang
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(145, now);
+        osc.frequency.exponentialRampToValueAtTime(290, now + 0.09);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.35);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+
+      function playHeartBurstChime() {
+        if (!isAudioEnabled || !audioCtx) return;
+        // Warm major chord arpeggio chime on heart impact
+        const chord = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+        chord.forEach((f, idx) => {
+          playPluck(f, 1.4, idx * 0.065, 0.1, 'sine');
+        });
+      }
+
+      function startBirthdayMelody() {
+        stopBirthdayMelody();
+        if (!isAudioEnabled) return;
+        initAudio();
+
+        // Warm acoustic guitar style arrangement of "Happy Birthday" + delicate harmony
+        const notes = [
+          // Bar 1-2: Hap-py Birth-day to you
+          { f: 392.00, b: 261.63, d: 0.38, t: 0.0 },
+          { f: 392.00, b: null,   d: 0.25, t: 0.42 },
+          { f: 440.00, b: 293.66, d: 0.65, t: 0.72 },
+          { f: 392.00, b: 261.63, d: 0.65, t: 1.42 },
+          { f: 523.25, b: 329.63, d: 0.65, t: 2.12 },
+          { f: 493.88, b: 246.94, d: 1.15, t: 2.82 },
+
+          // Bar 3-4: Hap-py Birth-day to you
+          { f: 392.00, b: 196.00, d: 0.38, t: 4.10 },
+          { f: 392.00, b: null,   d: 0.25, t: 4.52 },
+          { f: 440.00, b: 246.94, d: 0.65, t: 4.82 },
+          { f: 392.00, b: 196.00, d: 0.65, t: 5.52 },
+          { f: 587.33, b: 293.66, d: 0.65, t: 6.22 },
+          { f: 523.25, b: 261.63, d: 1.15, t: 6.92 },
+
+          // Bar 5-6: Hap-py Birth-day dear special one
+          { f: 392.00, b: 261.63, d: 0.38, t: 8.20 },
+          { f: 392.00, b: null,   d: 0.25, t: 8.62 },
+          { f: 783.99, b: 329.63, d: 0.65, t: 8.92 },
+          { f: 659.25, b: 261.63, d: 0.65, t: 9.62 },
+          { f: 523.25, b: 349.23, d: 0.65, t: 10.32 },
+          { f: 493.88, b: 329.63, d: 0.65, t: 11.02 },
+          { f: 440.00, b: 293.66, d: 1.05, t: 11.72 },
+
+          // Bar 7-8: Hap-py Birth-day to you
+          { f: 698.46, b: 349.23, d: 0.38, t: 12.90 },
+          { f: 698.46, b: null,   d: 0.25, t: 13.32 },
+          { f: 659.25, b: 329.63, d: 0.65, t: 13.62 },
+          { f: 523.25, b: 261.63, d: 0.65, t: 14.32 },
+          { f: 587.33, b: 293.66, d: 0.65, t: 15.02 },
+          { f: 523.25, b: 261.63, d: 1.60, t: 15.72 }
+        ];
+
+        function playLoop() {
+          if (!isAudioEnabled) return;
+          notes.forEach((n) => {
+            playPluck(n.f, n.d + 0.4, n.t, 0.095, 'triangle');
+            if (n.b) {
+              playPluck(n.b, n.d + 0.7, n.t, 0.06, 'sine');
+            }
+          });
+        }
+
+        playLoop();
+        melodyInterval = setInterval(playLoop, 17800);
+      }
+
+      function stopBirthdayMelody() {
+        if (melodyInterval) {
+          clearInterval(melodyInterval);
+          melodyInterval = null;
+        }
+      }
+
+      // --- AMBIENT BOKEH & FLOATING SPARKLES CANVAS ---
+      let ambientParticles = [];
+      function resizeCanvases() {
+        const rect = stageContainer.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        [ambientCanvas, burstCanvas, treeCanvas].forEach((c) => {
+          c.width = rect.width * dpr;
+          c.height = rect.height * dpr;
+          const ctx = c.getContext('2d');
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        });
+      }
+
+      function initAmbientParticles() {
+        const rect = stageContainer.getBoundingClientRect();
+        ambientParticles = [];
+        for (let i = 0; i < 32; i++) {
+          ambientParticles.push({
+            x: Math.random() * rect.width,
+            y: Math.random() * rect.height,
+            r: 2 + Math.random() * 5,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: -0.25 - Math.random() * 0.45,
+            alpha: 0.15 + Math.random() * 0.4,
+            color: i % 2 === 0 ? '#f4a2b8' : '#f7d69c'
+          });
+        }
+      }
+
+      // --- BURST MINI-HEARTS ON ARROW HIT ---
+      let burstHearts = [];
+      function spawnBurstHearts(cx, cy) {
+        burstHearts = [];
+        const colors = ['#ff2a6d', '#d91e5b', '#ff7597', '#ffb3c6', '#e63946', '#ffbe0b'];
+        for (let i = 0; i < 42; i++) {
+          const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.5;
+          const speed = 2.5 + Math.random() * 7.5;
+          burstHearts.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 2.2,
+            size: 5 + Math.random() * 8,
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.12,
+            alpha: 1,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          });
+        }
+      }
+
+      function drawMiniHeart(ctx, x, y, size, rot, color, alpha) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        const s = size * 0.5;
+        ctx.moveTo(0, s * 0.75);
+        ctx.bezierCurveTo(-s * 1.2, -s * 0.2, -s * 0.6, -s * 1.2, 0, -s * 0.45);
+        ctx.bezierCurveTo(s * 0.6, -s * 1.2, s * 1.2, -s * 0.2, 0, s * 0.75);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // --- SCENE 1: BOW & ARROW ANIMATION ("draw -> fire -> bloom") ---
+      let bowDrawProgress = 0;
+      let arrowFlightProgress = 0;
+      let isAnimatingBow = false;
+
+      function updateBowGeometry(drawAmount) {
+        // drawAmount: 0 (rest) to 1 (full pull back)
+        const pullY = 26 + drawAmount * 28; // String pulls back from y=26 to y=54
+        const limbBend = 30 + drawAmount * 8;
+        bowString.setAttribute('d', `M -68,${limbBend} Q 0,${pullY} 68,${limbBend}`);
+        bowLimb.setAttribute(
+          'd',
+          `M -72,${limbBend} C -58,10 -36,-24 0,-26 C 36,-24 58,10 72,${limbBend}`
+        );
+        arrowGroup.setAttribute('transform', `translate(0, ${drawAmount * 28})`);
+      }
+
+      function updateBowAimAngle() {
+        const bowRect = bowWrapper.getBoundingClientRect();
+        const heartRect = targetHeartWrapper.getBoundingClientRect();
+        const bx = bowRect.left + bowRect.width / 2;
+        const by = bowRect.top + bowRect.height / 2;
+        const hx = heartRect.left + heartRect.width / 2;
+        const hy = heartRect.top + heartRect.height / 2;
+
+        // Angle from bow to heart (arrow points along -Y in SVG space)
+        const dx = hx - bx;
+        const dy = hy - by;
+        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+        bowWrapper.style.transform = `translate(-50%, 50%) rotate(${angleDeg}deg)`;
+        return { bx, by, hx, hy, distance: Math.hypot(dx, dy) };
+      }
+
+      function fireBowAndArrow() {
+        if (arrowFired || currentStage !== 'archery') return;
+        arrowFired = true;
+        isAnimatingBow = true;
+        archeryHint.style.opacity = '0';
+
+        initAudio();
+        const startTime = performance.now();
+        const drawDuration = 680; // Smooth pullback
+        const flightDuration = 340; // Crisp shot to the heart
+
+        function stepBow(now) {
+          if (currentStage !== 'archery') return;
+          const elapsed = now - startTime;
+          const metrics = updateBowAimAngle();
+
+          if (elapsed < drawDuration) {
+            // Pull back bowstring smoothly
+            const t = elapsed / drawDuration;
+            const eased = 1 - Math.pow(1 - t, 3);
+            bowDrawProgress = eased;
+            updateBowGeometry(bowDrawProgress);
+            requestAnimationFrame(stepBow);
+          } else if (elapsed < drawDuration + flightDuration) {
+            // Release string & fly arrow to heart
+            if (bowDrawProgress > 0) {
+              bowDrawProgress = 0;
+              updateBowGeometry(0);
+              playBowTwangSound();
+            }
+            const ft = (elapsed - drawDuration) / flightDuration;
+            const easedFlight = 1 - Math.pow(1 - ft, 2);
+            // Move arrow along local -Y axis toward target heart
+            const travelPx = -easedFlight * (metrics.distance * 0.92);
+            arrowGroup.setAttribute('transform', `translate(0, ${travelPx})`);
+            requestAnimationFrame(stepBow);
+          } else {
+            // Arrow hits the heart!
+            onArrowHitHeart();
+          }
+        }
+
+        requestAnimationFrame(stepBow);
+      }
+
+      function onArrowHitHeart() {
+        playHeartBurstChime();
+
+        const stageRect = stageContainer.getBoundingClientRect();
+        const heartRect = targetHeartWrapper.getBoundingClientRect();
+        const hx = heartRect.left - stageRect.left + heartRect.width / 2;
+        const hy = heartRect.top - stageRect.top + heartRect.height / 2;
+
+        // Burst mini hearts upward like the video
+        spawnBurstHearts(hx, hy);
+
+        // Pulse the target heart larger, then bloom into the crimson wish screen
+        targetHeartWrapper.classList.remove('animate-heart-float');
+        targetHeartWrapper.style.transition = 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease';
+        targetHeartWrapper.style.transform = 'translate(-50%, -50%) scale(1.45)';
+        heartAura.style.transition = 'transform 0.75s ease-out, opacity 0.75s ease';
+        heartAura.style.transform = 'translate(-50%, -50%) scale(4.8)';
+
+        schedule(() => {
+          transitionToCrimsonScene();
+        }, 620);
+      }
+
+      // --- SCENE 2: CRIMSON "HAPPY BIRTHDAY" WISH REVEAL ---
+      function transitionToCrimsonScene() {
+        currentStage = 'crimson';
+        stageCaption.textContent = 'Happy Birthday!';
+
+        // Hide archery scene, show crimson scene
+        sceneArchery.classList.add('opacity-0', 'pointer-events-none');
+        sceneCrimson.classList.remove('opacity-0', 'pointer-events-none');
+
+        // Apply custom recipient and subtitle if provided
+        crimsonSub.textContent = crimsonSubtitle || 'to someone worth celebrating';
+        if (recipientName.trim()) {
+          crimsonRecipient.textContent = `Dear ${recipientName.trim()}`;
+          crimsonRecipient.classList.remove('hidden');
+        } else {
+          crimsonRecipient.classList.add('hidden');
+        }
+
+        // Staggered typography reveal matching the video
+        schedule(() => {
+          crimsonPre.classList.remove('opacity-0', 'translate-y-4');
+        }, 180);
+
+        schedule(() => {
+          crimsonHappy.classList.remove('opacity-0', 'scale-90');
+        }, 520);
+
+        schedule(() => {
+          crimsonBirthday.classList.remove('opacity-0', 'scale-90');
+        }, 900);
+
+        schedule(() => {
+          crimsonDivider.classList.remove('opacity-0');
+          crimsonSub.classList.remove('opacity-0', 'translate-y-3');
+        }, 1350);
+
+        // Trigger the radiant golden sun-orb flash into the Blooming Tree scene
+        schedule(() => {
+          triggerGoldenFlashToTree();
+        }, 3500);
+      }
+
+      function resetCrimsonTextClasses() {
+        crimsonPre.classList.add('opacity-0', 'translate-y-4');
+        crimsonHappy.classList.add('opacity-0', 'scale-90');
+        crimsonBirthday.classList.add('opacity-0', 'scale-90');
+        crimsonDivider.classList.add('opacity-0');
+        crimsonSub.classList.add('opacity-0', 'translate-y-3');
+      }
+
+      // --- SCENE 3: RADIANT FLASH -> BLOOMING HEART TREE ---
+      let treeBranches = [];
+      let treeBlossoms = [];
+      let fallingPetals = [];
+      let treeAnimStart = 0;
+      let isTreeActive = false;
+
+      // Rose & blossom palette inspired by the video's `pick(roses)`
+      const ROSE_PALETTE = [
+        { base: '#b5174b', light: '#ff85a9', dark: '#690827' },
+        { base: '#d62860', light: '#ff9ebb', dark: '#800f33' },
+        { base: '#e85d88', light: '#ffc2d4', dark: '#9e1c46' },
+        { base: '#f2849e', light: '#ffe0e8', dark: '#b53858' },
+        { base: '#f7a8b8', light: '#fff0f3', dark: '#c95b73' },
+        { base: '#e56b6f', light: '#ffccc9', dark: '#9e2a2f' },
+        { base: '#f4c095', light: '#fff3e6', dark: '#b87d4b' }
+      ];
+
+      // Mathematical Heart Curve test: `inHeart(u, v)`
+      function inHeart(u, v) {
+        // Classic heart implicit equation: (u^2 + v^2 - 1)^3 - u^2 * v^3 <= 0
+        const a = u * u + v * v - 1;
+        return a * a * a - u * u * v * v * v <= 0;
+      }
+
+      const treeTextBlock = document.getElementById('tree-text-block');
+
+      function getTreeMetrics(w, h) {
+        const canopyScale = Math.min(w, h) * 0.255;
+        const textRect = treeTextBlock ? treeTextBlock.getBoundingClientRect() : null;
+        const textWidth = (textRect && textRect.width > 0) ? textRect.width : (w < 640 ? 215 : 265);
+        // Small gap between the right edge of the text and the leftmost tree branches/blossoms
+        const gapToCanopy = w < 640 ? 14 : 28;
+        const canopyLeftReach = canopyScale * 1.06;
+        const canopyRightReach = canopyScale * 1.12;
+        const offsetFromTrunkToTextRight = canopyLeftReach + gapToCanopy;
+
+        // Center the combined [Text Block + Small Gap + Tree Canopy] in the middle of the viewport
+        const idealTrunkX = w * 0.5 + (offsetFromTrunkToTextRight + textWidth - canopyRightReach) * 0.5;
+        const trunkX = Math.min(w - canopyRightReach - 16, Math.max(w * 0.52, idealTrunkX));
+        const baseY = h * 0.98;
+        const canopyCenterY = h * 0.43;
+        return { trunkX, baseY, canopyCenterY, canopyScale, textWidth, offsetFromTrunkToTextRight };
+      }
+
+      function positionTreeTextBlock() {
+        if (!treeTextBlock) return;
+        const rect = stageContainer.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+        const { trunkX, textWidth, offsetFromTrunkToTextRight } = getTreeMetrics(w, h);
+        // Place text block so its right edge stays clear of the leftmost tree branches with a small gap
+        const idealLeft = trunkX - offsetFromTrunkToTextRight - textWidth;
+        treeTextBlock.style.left = `${Math.max(16, Math.round(idealLeft))}px`;
+      }
+
+      function buildHeartTreeData() {
+        const rect = stageContainer.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+
+        const { trunkX, baseY, canopyCenterY, canopyScale } = getTreeMetrics(w, h);
+        positionTreeTextBlock();
+
+        // 1. Define graceful curved branches (start -> control -> end, plus start/end growth timing)
+        treeBranches = [
+          // Main trunk
+          {
+            x0: trunkX, y0: baseY,
+            cx: trunkX - 6, cy: h * 0.72,
+            x1: trunkX, y1: h * 0.52,
+            w0: 15, w1: 7.5,
+            tStart: 0.0, tEnd: 0.35
+          },
+          // Left sweeping primary bough
+          {
+            x0: trunkX - 2, y0: h * 0.57,
+            cx: trunkX - canopyScale * 0.58, cy: h * 0.47,
+            x1: trunkX - canopyScale * 0.85, y1: h * 0.31,
+            w0: 7, w1: 2.2,
+            tStart: 0.24, tEnd: 0.62
+          },
+          // Right sweeping primary bough
+          {
+            x0: trunkX + 2, y0: h * 0.55,
+            cx: trunkX + canopyScale * 0.58, cy: h * 0.45,
+            x1: trunkX + canopyScale * 0.86, y1: h * 0.30,
+            w0: 7, w1: 2.2,
+            tStart: 0.26, tEnd: 0.64
+          },
+          // Center-left tall branch
+          {
+            x0: trunkX, y0: h * 0.53,
+            cx: trunkX - canopyScale * 0.24, cy: h * 0.38,
+            x1: trunkX - canopyScale * 0.44, y1: h * 0.21,
+            w0: 5.5, w1: 1.8,
+            tStart: 0.32, tEnd: 0.68
+          },
+          // Center-right tall branch
+          {
+            x0: trunkX, y0: h * 0.53,
+            cx: trunkX + canopyScale * 0.22, cy: h * 0.37,
+            x1: trunkX + canopyScale * 0.42, y1: h * 0.20,
+            w0: 5.5, w1: 1.8,
+            tStart: 0.34, tEnd: 0.70
+          },
+          // Far-left outer sub-branch
+          {
+            x0: trunkX - canopyScale * 0.42, y0: h * 0.45,
+            cx: trunkX - canopyScale * 0.82, cy: h * 0.42,
+            x1: trunkX - canopyScale * 1.02, y1: h * 0.38,
+            w0: 3.8, w1: 1.3,
+            tStart: 0.45, tEnd: 0.75
+          },
+          // Far-right outer sub-branch
+          {
+            x0: trunkX + canopyScale * 0.42, y0: h * 0.44,
+            cx: trunkX + canopyScale * 0.82, cy: h * 0.41,
+            x1: trunkX + canopyScale * 1.02, y1: h * 0.37,
+            w0: 3.8, w1: 1.3,
+            tStart: 0.46, tEnd: 0.76
+          },
+          // Inner left twig
+          {
+            x0: trunkX - canopyScale * 0.22, y0: h * 0.37,
+            cx: trunkX - canopyScale * 0.12, cy: h * 0.28,
+            x1: trunkX - canopyScale * 0.16, y1: h * 0.22,
+            w0: 3.0, w1: 1.1,
+            tStart: 0.52, tEnd: 0.80
+          },
+          // Inner right twig
+          {
+            x0: trunkX + canopyScale * 0.20, y0: h * 0.36,
+            cx: trunkX + canopyScale * 0.14, cy: h * 0.27,
+            x1: trunkX + canopyScale * 0.18, y1: h * 0.21,
+            w0: 3.0, w1: 1.1,
+            tStart: 0.54, tEnd: 0.82
+          }
+        ];
+
+        // 2. Sample 380 3D heart blossoms inside the mathematical heart canopy (`while (hearts.length < 380)`)
+        treeBlossoms = [];
+        let attempts = 0;
+        const targetCount = w < 640 ? 290 : 380;
+
+        while (treeBlossoms.length < targetCount && attempts < 6000) {
+          attempts++;
+          // Sample u in [-1.35, 1.35], v in [-1.25, 1.35]
+          const u = (Math.random() * 2 - 1) * 1.32;
+          const v = (Math.random() * 2 - 1) * 1.32;
+
+          if (inHeart(u, v)) {
+            const bx = trunkX + u * canopyScale * 0.96;
+            // Invert v because canvas Y grows downward
+            const by = canopyCenterY - v * canopyScale * 0.88;
+
+            // Distance from bottom-center of canopy so blossoms bloom outward from the branches!
+            const distFromFork = Math.hypot(bx - trunkX, by - h * 0.52);
+            const normalizedDist = Math.min(1, distFromFork / (canopyScale * 1.35));
+
+            const palette = ROSE_PALETTE[Math.floor(Math.random() * ROSE_PALETTE.length)];
+            treeBlossoms.push({
+              x: bx,
+              y: by,
+              size: (w < 640 ? 9 : 11.5) + Math.random() * (w < 640 ? 9 : 12),
+              rot: (Math.random() - 0.5) * 0.75,
+              swayPhase: Math.random() * Math.PI * 2,
+              swaySpeed: 1.2 + Math.random() * 1.4,
+              palette,
+              // Bloom delay (seconds after tree starts growing)
+              bloomDelay: 0.72 + normalizedDist * 1.15 + Math.random() * 0.65
+            });
+          }
+        }
+
+        // Sort slightly by size/y for natural depth layering
+        treeBlossoms.sort((a, b) => a.y - b.y);
+
+        // 3. Initial gentle falling heart petals
+        fallingPetals = [];
+        for (let i = 0; i < 18; i++) {
+          fallingPetals.push(createFallingPetal(trunkX, canopyCenterY, canopyScale));
+        }
+      }
+
+      function createFallingPetal(trunkX, canopyCenterY, canopyScale) {
+        const palette = ROSE_PALETTE[Math.floor(Math.random() * ROSE_PALETTE.length)];
+        return {
+          x: trunkX + (Math.random() - 0.5) * canopyScale * 1.7,
+          y: canopyCenterY + (Math.random() - 0.5) * canopyScale * 1.1,
+          vx: -0.35 + (Math.random() - 0.5) * 0.6,
+          vy: 0.45 + Math.random() * 0.75,
+          size: 6 + Math.random() * 6,
+          rot: Math.random() * Math.PI * 2,
+          vRot: (Math.random() - 0.5) * 0.03,
+          sway: Math.random() * Math.PI * 2,
+          color: palette.base,
+          alpha: 0.75 + Math.random() * 0.25
+        };
+      }
+
+      function drawPartialQuadBezier(ctx, b, progress) {
+        if (progress <= 0) return;
+        const p = Math.min(1, progress);
+        const steps = 20;
+        const maxStep = Math.max(1, Math.floor(steps * p));
+
+        ctx.strokeStyle = '#3b181c';
+        ctx.lineCap = 'round';
+
+        for (let i = 0; i < maxStep; i++) {
+          const t0 = i / steps;
+          const t1 = (i + 1) / steps;
+
+          const xA = (1 - t0) * (1 - t0) * b.x0 + 2 * (1 - t0) * t0 * b.cx + t0 * t0 * b.x1;
+          const yA = (1 - t0) * (1 - t0) * b.y0 + 2 * (1 - t0) * t0 * b.cy + t0 * t0 * b.y1;
+
+          const xB = (1 - t1) * (1 - t1) * b.x0 + 2 * (1 - t1) * t1 * b.cx + t1 * t1 * b.x1;
+          const yB = (1 - t1) * (1 - t1) * b.y0 + 2 * (1 - t1) * t1 * b.cy + t1 * t1 * b.y1;
+
+          ctx.lineWidth = b.w0 + (b.w1 - b.w0) * t1;
+          ctx.beginPath();
+          ctx.moveTo(xA, yA);
+          ctx.lineTo(xB, yB);
+          ctx.stroke();
+        }
+      }
+
+      function draw3DHeartBlossom(ctx, x, y, size, rot, palette, scale) {
+        if (scale <= 0.01) return;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.scale(scale, scale);
+
+        const s = size * 0.52;
+
+        // Soft drop shadow
+        ctx.shadowColor = 'rgba(110, 14, 45, 0.22)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
+
+        // 3D Radial gradient inside the heart blossom
+        const grad = ctx.createRadialGradient(-s * 0.28, -s * 0.32, s * 0.1, 0, 0, s * 1.35);
+        grad.addColorStop(0, palette.light);
+        grad.addColorStop(0.55, palette.base);
+        grad.addColorStop(1, palette.dark);
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, s * 0.85);
+        ctx.bezierCurveTo(-s * 1.35, -s * 0.15, -s * 0.7, -s * 1.25, 0, -s * 0.42);
+        ctx.bezierCurveTo(s * 0.7, -s * 1.25, s * 1.35, -s * 0.15, 0, s * 0.85);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tiny specular highlight dot on upper-left lobe
+        ctx.shadowColor = 'transparent';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.34, -s * 0.38, s * 0.22, s * 0.12, -0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function triggerGoldenFlashToTree() {
+        // Expand radiant golden-white orb like the video at 00:05
+        sunFlash.classList.remove('opacity-0', 'scale-50');
+        sunFlash.classList.add('opacity-100', 'scale-150');
+
+        schedule(() => {
+          // Switch scene behind the flash
+          currentStage = 'tree';
+          sceneCrimson.classList.add('opacity-0', 'pointer-events-none');
+          sceneTree.classList.remove('opacity-0', 'pointer-events-none');
+          stageContainer.style.background =
+            'radial-gradient(circle at 55% 42%, #fffdf9 0%, #f8efe4 60%, #ead8c5 100%)';
+
+          // Prepare tree data & start blooming
+          buildHeartTreeData();
+          treeAnimStart = performance.now();
+          isTreeActive = true;
+
+          // Update custom text on tree screen
+          treeLine2.textContent = treeFooterText || "here's to a year that blooms";
+          if (recipientName.trim()) {
+            treeRecipientName.textContent = `for ${recipientName.trim()}`;
+            treeRecipientName.classList.remove('hidden');
+          } else {
+            treeRecipientName.classList.add('hidden');
+          }
+          positionTreeTextBlock();
+
+          // Fade out the golden flash
+          sunFlash.classList.remove('opacity-100', 'scale-150');
+          sunFlash.classList.add('opacity-0', 'scale-50');
+
+          // Reveal bottom-left poetic text as the tree blooms
+          schedule(() => {
+            treeLine1.classList.remove('opacity-0', 'translate-y-3');
+            treeMainHeading.classList.remove('opacity-0', 'translate-y-4');
+            treeLineDivider.classList.remove('opacity-0');
+            treeLine2.classList.remove('opacity-0', 'translate-y-2');
+            treeActions.classList.remove('opacity-0');
+          }, 950);
+        }, 620);
+      }
+
+      function resetTreeTextClasses() {
+        treeLine1.classList.add('opacity-0', 'translate-y-3');
+        treeMainHeading.classList.add('opacity-0', 'translate-y-4');
+        treeLineDivider.classList.add('opacity-0');
+        treeLine2.classList.add('opacity-0', 'translate-y-2');
+        treeActions.classList.add('opacity-0');
+      }
+
+      // --- MASTER RENDER LOOP (60FPS) ---
+      function renderLoop(now) {
+        const rect = stageContainer.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+
+        // 1. Ambient background particles
+        ambientCtx.clearRect(0, 0, w, h);
+        for (let i = 0; i < ambientParticles.length; i++) {
+          const p = ambientParticles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.y < -10) p.y = h + 10;
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          ambientCtx.save();
+          ambientCtx.globalAlpha = p.alpha;
+          ambientCtx.fillStyle = p.color;
+          ambientCtx.beginPath();
+          ambientCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ambientCtx.fill();
+          ambientCtx.restore();
+        }
+
+        // 2. Burst mini-hearts canvas
+        burstCtx.clearRect(0, 0, w, h);
+        for (let i = burstHearts.length - 1; i >= 0; i--) {
+          const bh = burstHearts[i];
+          bh.x += bh.vx;
+          bh.y += bh.vy;
+          bh.vy += 0.12; // subtle gravity
+          bh.rot += bh.vRot;
+          bh.alpha -= 0.014;
+          if (bh.alpha <= 0) {
+            burstHearts.splice(i, 1);
+          } else {
+            drawMiniHeart(burstCtx, bh.x, bh.y, bh.size, bh.rot, bh.color, bh.alpha);
+          }
+        }
+
+        // 3. Blooming Heart Tree canvas
+        if (isTreeActive && currentStage === 'tree') {
+          treeCtx.clearRect(0, 0, w, h);
+          const elapsedSec = (now - treeAnimStart) / 1000;
+
+          // Soft warm glow behind the tree canopy
+          const { trunkX, canopyCenterY: canopyY } = getTreeMetrics(w, h);
+          const glowGrad = treeCtx.createRadialGradient(
+            trunkX, canopyY, 10,
+            trunkX, canopyY, Math.min(w, h) * 0.38
+          );
+          glowGrad.addColorStop(0, 'rgba(244, 162, 184, 0.28)');
+          glowGrad.addColorStop(0.6, 'rgba(247, 214, 156, 0.12)');
+          glowGrad.addColorStop(1, 'rgba(248, 241, 231, 0)');
+          treeCtx.fillStyle = glowGrad;
+          treeCtx.fillRect(0, 0, w, h);
+
+          // Draw growing trunk & branches
+          for (let i = 0; i < treeBranches.length; i++) {
+            const b = treeBranches[i];
+            const branchProg = (elapsedSec - b.tStart) / (b.tEnd - b.tStart);
+            drawPartialQuadBezier(treeCtx, b, branchProg);
+          }
+
+          // Draw 3D heart blossoms popping in with elastic spring
+          for (let i = 0; i < treeBlossoms.length; i++) {
+            const bl = treeBlossoms[i];
+            const localT = elapsedSec - bl.bloomDelay;
+            if (localT > 0) {
+              // Elastic spring scale
+              let scale = 1;
+              if (localT < 0.55) {
+                const p = localT / 0.55;
+                scale = 1 + Math.sin(p * Math.PI * 1.5) * 0.28 * (1 - p);
+                scale = Math.min(1.22, p * 1.15);
+              }
+              const swayX = Math.sin(elapsedSec * bl.swaySpeed + bl.swayPhase) * 1.8;
+              const swayY = Math.cos(elapsedSec * bl.swaySpeed + bl.swayPhase) * 1.1;
+              const swayRot = bl.rot + Math.sin(elapsedSec * 1.5 + bl.swayPhase) * 0.06;
+
+              draw3DHeartBlossom(
+                treeCtx,
+                bl.x + swayX,
+                bl.y + swayY,
+                bl.size,
+                swayRot,
+                bl.palette,
+                scale
+              );
+            }
+          }
+
+          // Gentle drifting heart petals after canopy blooms
+          if (elapsedSec > 1.5) {
+            for (let i = 0; i < fallingPetals.length; i++) {
+              const fp = fallingPetals[i];
+              fp.x += fp.vx + Math.sin(elapsedSec * 1.8 + fp.sway) * 0.35;
+              fp.y += fp.vy;
+              fp.rot += fp.vRot;
+
+              if (fp.y > h + 20 || fp.x < -20 || fp.x > w + 20) {
+                const canopyScale = Math.min(w, h) * 0.255;
+                Object.assign(fp, createFallingPetal(trunkX, canopyY, canopyScale));
+              }
+
+              drawMiniHeart(treeCtx, fp.x, fp.y, fp.size, fp.rot, fp.color, fp.alpha);
+            }
+          }
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      // --- START / OPEN FLOW ---
+      function startArcheryExperience() {
+        clearAllScheduled();
+        initAudio();
+        startBirthdayMelody();
+
+        currentStage = 'archery';
+        arrowFired = false;
+        isTreeActive = false;
+        burstHearts = [];
+
+        // Show replay button in top header
+        btnReplay.classList.remove('hidden');
+        btnReplay.classList.add('flex');
+
+        // Reset scenes visibility
+        sceneOpen.classList.add('opacity-0', 'pointer-events-none');
+        sceneCrimson.classList.add('opacity-0', 'pointer-events-none');
+        sceneTree.classList.add('opacity-0', 'pointer-events-none');
+        sceneArchery.classList.remove('opacity-0', 'pointer-events-none');
+
+        stageContainer.style.background =
+          'radial-gradient(circle at 50% 42%, #fffcf8 0%, #f7ede0 58%, #ead8c3 100%)';
+
+        // Reset target heart & bow state
+        targetHeartWrapper.style.transition = 'none';
+        targetHeartWrapper.style.transform = 'translate(-50%, -50%) scale(1)';
+        targetHeartWrapper.classList.add('animate-heart-float');
+        heartAura.style.transition = 'none';
+        heartAura.style.transform = 'translate(-50%, -50%) scale(1)';
+
+        resetCrimsonTextClasses();
+        resetTreeTextClasses();
+
+        updateBowGeometry(0);
+        arrowGroup.setAttribute('transform', 'translate(0, 0)');
+        updateBowAimAngle();
+
+        stageCaption.textContent = 'Aim for the heart';
+        archeryWhisper.classList.remove('opacity-0');
+        archeryHint.style.opacity = '1';
+
+        if (autoShootMode) {
+          archeryHint.textContent = 'Drawing bow... (or click anywhere to shoot immediately)';
+          schedule(() => {
+            fireBowAndArrow();
+          }, 1150);
+        } else {
+          archeryHint.textContent = 'Click the heart or bow to draw & shoot Cupid’s arrow!';
+        }
+      }
+
+      // --- EVENT LISTENERS ---
+      btnOpenSurprise.addEventListener('click', () => {
+        startArcheryExperience();
+      });
+
+      // Clicking anywhere in Scene 1 shoots the arrow immediately
+      sceneArchery.addEventListener('click', () => {
+        if (!arrowFired && currentStage === 'archery') {
+          fireBowAndArrow();
+        }
+      });
+
+      btnReplay.addEventListener('click', () => {
+        startArcheryExperience();
+      });
+
+      btnReplayBottom.addEventListener('click', () => {
+        startArcheryExperience();
+      });
+
+      btnBloomMore.addEventListener('click', () => {
+        initAudio();
+        playHeartBurstChime();
+        const rect = stageContainer.getBoundingClientRect();
+        const { trunkX, canopyCenterY: canopyY } = getTreeMetrics(rect.width, rect.height);
+        spawnBurstHearts(trunkX, canopyY);
+        const canopyScale = Math.min(rect.width, rect.height) * 0.255;
+        for (let i = 0; i < 15; i++) {
+          fallingPetals.push(createFallingPetal(trunkX, canopyY, canopyScale));
+        }
+      });
+
+      // Mode selector buttons on Open card
+      modeAutoBtn.addEventListener('click', () => {
+        autoShootMode = true;
+        modeAutoBtn.className = 'px-3 py-1 rounded-full bg-rose-600 text-white font-medium transition';
+        modeManualBtn.className = 'px-3 py-1 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-900 font-medium transition';
+      });
+
+      modeManualBtn.addEventListener('click', () => {
+        autoShootMode = false;
+        modeManualBtn.className = 'px-3 py-1 rounded-full bg-rose-600 text-white font-medium transition';
+        modeAutoBtn.className = 'px-3 py-1 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-900 font-medium transition';
+      });
+
+      // Audio toggle
+      btnAudio.addEventListener('click', () => {
+        isAudioEnabled = !isAudioEnabled;
+        if (isAudioEnabled) {
+          audioIcon.textContent = '🔊';
+          audioLabel.textContent = 'Music On';
+          initAudio();
+          if (currentStage !== 'open') {
+            startBirthdayMelody();
+          }
+        } else {
+          audioIcon.textContent = '🔇';
+          audioLabel.textContent = 'Muted';
+          stopBirthdayMelody();
+        }
+      });
+
+      // Customize Modal Controls
+      function openCustomizeModal() {
+        customizeModal.classList.remove('hidden');
+        customizeModal.classList.add('flex');
+        inputRecipient.value = recipientName;
+        inputSubwish.value = crimsonSubtitle;
+        inputTreeFooter.value = treeFooterText;
+      }
+
+      function closeCustomizeModal() {
+        customizeModal.classList.add('hidden');
+        customizeModal.classList.remove('flex');
+      }
+
+      btnCustomize.addEventListener('click', openCustomizeModal);
+      btnCloseModal.addEventListener('click', closeCustomizeModal);
+      btnCancelModal.addEventListener('click', closeCustomizeModal);
+
+      btnSaveModal.addEventListener('click', () => {
+        recipientName = inputRecipient.value.trim();
+        crimsonSubtitle = inputSubwish.value.trim() || 'to someone worth celebrating';
+        treeFooterText = inputTreeFooter.value.trim() || "here's to a year that blooms";
+
+        const openTitle = document.getElementById('open-card-title');
+        if (recipientName) {
+          openTitle.textContent = `For ${recipientName}`;
+        } else {
+          openTitle.textContent = 'A Birthday Surprise';
+        }
+
+        closeCustomizeModal();
+        if (currentStage !== 'open') {
+          startArcheryExperience();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        resizeCanvases();
+        positionTreeTextBlock();
+        if (currentStage === 'archery') {
+          updateBowAimAngle();
+        } else if (currentStage === 'tree') {
+          buildHeartTreeData();
+        }
+      });
+
+      // --- INITIALIZE ON LOAD ---
+      window.addEventListener('load', () => {
+        resizeCanvases();
+        initAmbientParticles();
+        positionTreeTextBlock();
+        updateBowAimAngle();
+        requestAnimationFrame(renderLoop);
+      });
+    })();
+  </script>
+</body>
+</html>

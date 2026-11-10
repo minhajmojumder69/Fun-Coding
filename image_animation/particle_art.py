@@ -21,14 +21,25 @@ class Particle:
         self.target_x = target_x
         self.target_y = target_y
         
-        self.start_x = random.randint(-100, WIDTH + 100)
-        self.start_y = random.randint(-100, HEIGHT + 100)
-        self.x = self.start_x
-        self.y = self.start_y
+        # --- SWIRL MATH (Polar Coordinates) ---
+        cx, cy = WIDTH // 2, HEIGHT // 2
+        dx = self.target_x - cx
+        dy = self.target_y - cy
+        self.target_radius = math.hypot(dx, dy)
+        self.target_angle = math.atan2(dy, dx)
+        
+        self.start_radius = random.uniform(800, 1200)
+        self.start_angle = math.pi + random.uniform(-0.5, 0.5) 
+        
+        while self.target_angle <= self.start_angle:
+            self.target_angle += math.pi * 2
+            
+        self.target_angle += math.pi * 2 
+        
+        self.x = cx + math.cos(self.start_angle) * self.start_radius
+        self.y = cy + math.sin(self.start_angle) * self.start_radius
         
         self.base_color = color
-        
-        # Pre-calculate the difference for the diamond shine to save CPU later
         self.color_diff = (
             min(255, color[0] + 150) - color[0],
             min(255, color[1] + 150) - color[1],
@@ -39,16 +50,15 @@ class Particle:
         
         self.current_frame = 0
         
-        # FASTER ANIMATION: Max 1 second delay (was 3 seconds)
-        self.start_delay = random.randint(0, 60) 
-        # FASTER TRAVEL: 0.75 to 1.5 seconds travel time (was up to 2.5)
-        self.total_frames = random.randint(45, 90) 
+        # --- THE FIX: TIGHTER TIMERS ---
+        # Particles now wait a maximum of 0.5 seconds to start (was 1.5)
+        self.start_delay = random.randint(0, 30) 
+        # Travel time reduced to 1.0 - 1.6 seconds (was up to 2.5)
+        self.total_frames = random.randint(60, 100) 
         
         self.shine_timer = random.randint(0, 300)
         self.shine_step = 0
         self.is_active = False 
-        
-        # New flag to fix the lag in the main loop
         self.is_settled = False 
 
     def update(self):
@@ -63,13 +73,14 @@ class Particle:
         if movement_frame < self.total_frames:
             t = movement_frame / self.total_frames
             
-            # Optimized Cubic Ease-out (much faster for the CPU than **)
             inv_t = 1.0 - t
             ease_t = 1.0 - (inv_t * inv_t * inv_t)
             
-            # Removed the random.uniform jitter while falling to massively boost FPS
-            self.x = self.start_x + (self.target_x - self.start_x) * ease_t
-            self.y = self.start_y + (self.target_y - self.start_y) * ease_t
+            current_radius = self.start_radius + (self.target_radius - self.start_radius) * ease_t
+            current_angle = self.start_angle + (self.target_angle - self.start_angle) * ease_t
+            
+            self.x = (WIDTH // 2) + math.cos(current_angle) * current_radius
+            self.y = (HEIGHT // 2) + math.sin(current_angle) * current_radius
         else:
             self.x = self.target_x
             self.y = self.target_y
@@ -81,7 +92,7 @@ class Particle:
                 self.shine_step += 1
                 if self.shine_step < 30:
                     intensity = (self.shine_step / 30.0)
-                    intensity *= intensity # Faster math squaring
+                    intensity *= intensity
                 elif self.shine_step < 60:
                     intensity = (60 - self.shine_step) / 30.0
                     intensity *= intensity
@@ -107,7 +118,7 @@ def load_particles_from_image(image_path, sample_rate=1):
     Applies a vertical pink-to-blue gradient matching the video.
     """
     try:
-        image_path = "image_animation/target_image.png"
+        image_path = "image_animation/black-silhouette-of-couple-holding-hands-with-heart-shaped-balloons-woman-vector.jpg"
         img = pygame.image.load(image_path).convert_alpha()
     except pygame.error as e:
         print(f"Error loading image: {e}")
@@ -118,7 +129,7 @@ def load_particles_from_image(image_path, sample_rate=1):
     particles = []
     
     # The gradient colors from the video
-    top_color = (255, 90, 200)    # Vivid Pink
+    top_color = (255, 255, 255)    # Vivid Pink
     bottom_color = (100, 150, 255) # Light Blue
 
     for x in range(0, img.get_width(), sample_rate):
@@ -147,12 +158,12 @@ def load_particles_from_image(image_path, sample_rate=1):
 
 def main():
     # Load particles from the source image
-    image_path = "target_image.png" 
+    image_path = "" 
     particles = load_particles_from_image(image_path, sample_rate=1)
     
     # Setup for the final text fade-in
     font = pygame.font.SysFont("georgia", 36, italic=True)
-    text_str = "With You, Even The Rain Feels Safe."
+    text_str = ""
     text_surface = font.render(text_str, True, WHITE)
     text_rect = text_surface.get_rect(center=(WIDTH // 2, 100))
     text_alpha = 0 
